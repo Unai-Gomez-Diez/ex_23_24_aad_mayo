@@ -1,9 +1,14 @@
 package com.iesam.ex_22_23_aad_marzo.feature
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.iesam.ex_22_23_aad_marzo.R
+import com.iesam.ex_22_23_aad_marzo.feature.animals.data.AnimalDataRepository
+import com.iesam.ex_22_23_aad_marzo.feature.animals.data.AppDataBase
+import com.iesam.ex_22_23_aad_marzo.feature.animals.data.local.AnimalDbLocalDataSource
+import com.iesam.ex_22_23_aad_marzo.feature.animals.data.remote.AnimalRemoteDataSource
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button?>(R.id.action_delete_animals).setOnClickListener {
             deleteAnimals()
         }
+        deleteAnimals()
         initLogin()
         initAnimals()
         initAnimalBreed()
@@ -37,19 +43,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAnimals() {
         thread {
-            //Ejecutar código para obtener animales
+           val animalDataRepository = AnimalDataRepository(
+               AnimalDbLocalDataSource(AppDataBase.getInstance(this).animalDao(),
+                   AppDataBase.getInstance(this).animalBreedDao(),
+                   AppDataBase.getInstance(this).animalTypeDao()),
+               AnimalRemoteDataSource()
+           )
+            Log.d("@dev",animalDataRepository.getAnimals().toString())
         }
     }
 
     private fun initAnimalBreed() {
         thread {
-            //Ejecutar código para obtener todas razas almacenadas en la base de datos (sin repetir)
+            val animalDataRepository = AnimalDataRepository(
+                AnimalDbLocalDataSource(AppDataBase.getInstance(this).animalDao(),
+                    AppDataBase.getInstance(this).animalBreedDao(),
+                    AppDataBase.getInstance(this).animalTypeDao()),
+                AnimalRemoteDataSource()
+            )
+            animalDataRepository.getAnimalBreeds()
         }
     }
 
     private fun deleteAnimals() {
         thread {
-            //Elimino los animales de local..
+            val animalDataRepository = AnimalDataRepository(
+                AnimalDbLocalDataSource(AppDataBase.getInstance(this).animalDao(),
+                    AppDataBase.getInstance(this).animalBreedDao(),
+                    AppDataBase.getInstance(this).animalTypeDao()),
+                AnimalRemoteDataSource()
+            )
+            animalDataRepository.deleteAnimals()
         }
     }
 
